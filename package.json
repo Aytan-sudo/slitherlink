@@ -1,0 +1,11 @@
+{
+    "name": "slitherlink",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Slitherlink statique : une seule boucle fermee, grilles a solution unique, jouable hors ligne.",
+    "type": "module",
+    "scripts": {
+        "test": "node tests/test-graphe.mjs && node tests/test-boucle.mjs && node tests/test-region.mjs && node tests/test-generateur.mjs && node tests/test-difficulte.mjs && node tests/test-codage.mjs && node tests/test-defi.mjs && node tests/test-stockage.mjs && node tests/test-palette.mjs && node tests/test-page.mjs",
+        "serve": "node serve.mjs"
+    }
+}

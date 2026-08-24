@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Slitherlink — une seule boucle</title>
+<meta name="description" content="Slitherlink : reliez les points en une seule boucle fermée. Grilles garanties à solution unique, difficulté mesurée, jouable au doigt et hors ligne.">
+<meta name="theme-color" content="#16233F">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="entete">
+    <h1>Slitherlink</h1>
+    <div class="entete-actions">
+        <button type="button" class="bouton-icone" id="bouton-defi" aria-label="Grille du jour">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/>
+                <path d="M3.5 10h17M8 3.5v4M16 3.5v4"/>
+            </svg>
+        </button>
+        <button type="button" class="bouton-icone" id="bouton-aide" aria-label="Règles du jeu">?</button>
+    </div>
+</header>
+
+<main>
+    <div class="bandeau">
+        <p class="bandeau-niveau">
+            <button type="button" class="niveau" id="etiquette-niveau" aria-describedby="niveau-detail">…</button>
+        </p>
+        <p class="bandeau-detail">
+            <span id="etiquette-taille">—</span>
+            <span class="separateur" aria-hidden="true">·</span>
+            <span id="etiquette-chiffres">—</span>
+            <span class="separateur" aria-hidden="true">·</span>
+            <time id="chrono">0:00</time>
+        </p>
+        <p class="niveau-detail" id="niveau-detail" hidden></p>
+        <p class="serie" id="serie" hidden></p>
+    </div>
+
+    <div class="plateau" id="plateau">
+        <svg id="grille" role="application" aria-label="Grille de Slitherlink"></svg>
+        <p class="voile" id="voile" hidden>couture en cours…</p>
+    </div>
+
+    <div class="actions">
+        <button type="button" class="bouton" id="bouton-annuler" disabled>
+            <span aria-hidden="true">↺</span> Annuler
+        </button>
+        <button type="button" class="bouton" id="bouton-refaire" disabled>
+            <span aria-hidden="true">↻</span> Refaire
+        </button>
+        <button type="button" class="bouton bouton-etroit" id="bouton-lien" aria-label="Copier le lien de cette grille">
+            <span aria-hidden="true">🔗</span>
+        </button>
+    </div>
+
+    <form class="reglages" id="reglages">
+        <label for="choix-taille">Taille
+            <select id="choix-taille">
+                <option value="5">5 × 5</option>
+                <option value="7">7 × 7</option>
+                <option value="8">8 × 8</option>
+                <option value="10">10 × 10</option>
+                <option value="12">12 × 12</option>
+            </select>
+        </label>
+        <label for="choix-niveau">Difficulté
+            <select id="choix-niveau">
+                <option value="1">Point simple</option>
+                <option value="2">Fil tendu</option>
+                <option value="3" selected>Essai court</option>
+                <option value="4">Essai double</option>
+            </select>
+        </label>
+        <button type="submit" class="bouton bouton-primaire" id="bouton-nouvelle">Nouvelle grille</button>
+    </form>
+</main>
+
+<div class="fanfare" id="fanfare" hidden>
+    <div class="fanfare-carte">
+        <p class="fanfare-titre">La boucle est fermée.</p>
+        <p class="fanfare-detail" id="fanfare-detail"></p>
+        <div class="fanfare-actions">
+            <button type="button" class="bouton" id="bouton-copier">Copier le résumé</button>
+            <button type="button" class="bouton bouton-primaire" id="bouton-encore">Une autre</button>
+        </div>
+    </div>
+</div>
+
+<dialog class="aide" id="aide">
+    <h2>Comment ça se joue</h2>
+    <p>Tracez des segments entre les points. À la fin, ils doivent former
+       <strong>une seule boucle fermée</strong> : pas de branchement, pas de croisement,
+       pas de deuxième boucle dans un coin.</p>
+    <p>Un chiffre dans une case dit combien de ses quatre côtés sont tracés.
+       Les cases vides ne disent rien. Chaque grille n'a qu'une solution.</p>
+    <h3>Les gestes</h3>
+    <ul>
+        <li><strong>Tap ou clic</strong> sur une arête : trait, puis croix, puis rien.</li>
+        <li><strong>Glisser</strong> : trace toute une suite d'arêtes d'un coup.</li>
+        <li><strong>Flèches</strong> pour se déplacer, <strong>Espace</strong> pour tracer,
+            <strong>X</strong> pour barrer.</li>
+        <li><strong>Ctrl+Z</strong> annule, <strong>Ctrl+Maj+Z</strong> refait.</li>
+    </ul>
+    <p class="aide-note">La croix ne sert à rien pour le jeu : elle sert à vous.
+       C'est le repère au crayon qui dit « pas ici », pour ne pas y revenir.</p>
+    <button type="button" class="bouton" id="bouton-fermer-aide">Fermer</button>
+</dialog>
+
+<p class="annonce" id="annonce" role="status" aria-live="polite"></p>
+
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>
