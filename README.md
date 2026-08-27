@@ -7,6 +7,15 @@ Chaque grille n'a qu'une solution, et c'est garanti par construction — pas par
 espoir. HTML, CSS et JavaScript natifs, modules ES chargés directement par le
 navigateur. Aucune dépendance, aucune compilation, aucun bundler.
 
+## Version 1.0.1
+
+- les cibles tactiles de l'interface passent à 44 px (boutons d'en-tête,
+  boutons texte, listes déroulantes), conformément à la convention.
+- les arêtes du maillage déclarent leur exemption (`data-cible-libre`) : les
+  élargir les ferait chevaucher ;
+- les listes déroulantes reçoivent une hauteur ferme — WebKit ignore
+  `min-height` sur un `select` natif et les rendait à 22 px sur iPhone.
+
 ## Jouer
 
 ```bash
