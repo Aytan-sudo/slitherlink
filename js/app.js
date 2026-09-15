@@ -51,6 +51,7 @@ function arreterChrono() {
 function poser(e, valeur) {
     const avant = etat[e];
     if (avant === valeur) return;
+    if (valeur === B.TRAIT) traitsAConfier++;
     etat[e] = valeur;
     histoire.noter(e, avant, valeur);
     vue.majAutour(e, etat);
@@ -66,7 +67,21 @@ function sauvegardeDifferee() {
     attenteSauvegarde = setTimeout(sauvegarder, 700);
 }
 
+// --- Passeport ---------------------------------------------------------------
+
+// Le tampon Logique du hub : une boucle fermee le donne tout de suite ; sinon,
+// trente traits poses dans la journee. Les traits sont comptes en memoire et
+// confies au passeport avec la sauvegarde, pas a chaque arete d'un glisse.
+let traitsAConfier = 0;
+function noterPasseport(reussite = false) {
+    const joueur = globalThis.Passeport;
+    const traits = stockage.ajouterTraitsPasseport(traitsAConfier, joueur?.jourLocal());
+    traitsAConfier = 0;
+    if (traits !== null && (traits > 0 || reussite)) joueur.noter('slitherlink', traits, reussite);
+}
+
 function sauvegarder() {
+    noterPasseport();
     if (!grille || gagne) return;
     stockage.enregistrerPartie({
         grille: encoderGrille(grille),
@@ -98,6 +113,7 @@ function verifierVictoire() {
     arreterChrono();
     clearTimeout(attenteSauvegarde);
     stockage.oublierPartie();
+    noterPasseport(true);
     vue.celebrer(etat, elements.plateau);
 
     // Seul le defi du jour nourrit la serie. Une grille libre bouclee vingt
@@ -265,7 +281,11 @@ elements.defi.addEventListener('click', ouvrirDefi);
 
 elements.lien.addEventListener('click', async function () {
     majLien();
-    const copie = await ui.copier(location.href);
+    // Le lien partagé porte la grille, jamais le profil du passeport de celui qui partage.
+    const partage = new URL(location.href);
+    partage.searchParams.delete('profil');
+    partage.searchParams.delete('mission');
+    const copie = await ui.copier(partage.href);
     ui.annoncer(copie ? 'Lien de la grille copié.' : 'Le lien est dans la barre d\'adresse.');
     ui.confirmerBouton(elements.lien, copie ? '✓' : '⌫');
 });

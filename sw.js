@@ -6,10 +6,13 @@
 // piege : un `git push` resterait invisible pour tous ceux qui ont deja ouvert
 // le jeu, jusqu'a ce qu'on pense a changer VERSION a la main.
 
-const VERSION = 'slitherlink-v2';
+const VERSION = 'slitherlink-v3';
 const COQUILLE = [
     './',
     'index.html',
+    'commun/passeport.js',
+    'commun/liaison.js',
+    'commun/passeport.css',
     'manifest.webmanifest',
     'css/style.css',
     'js/app.js',

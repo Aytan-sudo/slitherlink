@@ -11,8 +11,11 @@ const html = lire('index.html');
 const sw = lire('sw.js');
 const modules = readdirSync(new URL('../js', import.meta.url)).filter((f) => f.endsWith('.js')).sort();
 
-// index.html n'appelle qu'un module et ne contient aucune logique.
-const scripts = [...html.matchAll(/<script([^>]*)>/g)].map((m) => m[1]);
+// index.html n'appelle qu'un module et ne contient aucune logique. Seuls s'y
+// ajoutent les scripts communs du passeport, fournis tels quels par le hub.
+const communs = [...html.matchAll(/<script([^>]*)>/g)].map((m) => m[1]).filter((a) => /src="commun\//.test(a));
+check('les scripts communs du passeport sont charges', communs.length === 2, communs.length);
+const scripts = [...html.matchAll(/<script([^>]*)>/g)].map((m) => m[1]).filter((a) => !/src="commun\//.test(a));
 check('index.html ne charge qu un seul script', scripts.length === 1, scripts.length);
 check('et c est un module', scripts[0] && scripts[0].includes('type="module"'), scripts[0]);
 const enLigne = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].filter((m) => m[1].trim());

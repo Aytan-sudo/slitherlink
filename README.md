@@ -7,6 +7,15 @@ Chaque grille n'a qu'une solution, et c'est garanti par construction — pas par
 espoir. HTML, CSS et JavaScript natifs, modules ES chargés directement par le
 navigateur. Aucune dépendance, aucune compilation, aucun bundler.
 
+## Version 1.1.0 — Le passeport commun
+
+Ouvert depuis le hub avec un passeport, le jeu range la série et la partie en
+cours dans l’espace du joueur ; en mode invité, rien ne change. Une boucle
+fermée donne le tampon **Logique** tout de suite ; sinon, trente traits posés
+dans la journée, sur une ou plusieurs grilles, le donnent aussi. Le lien copié
+porte la grille, jamais le profil. Le zoom tactile est verrouillé comme le veut
+la convention. Les fichiers `commun/` viennent du hub et sont précachés.
+
 ## Version 1.0.1
 
 - les cibles tactiles de l'interface passent à 44 px (boutons d'en-tête,

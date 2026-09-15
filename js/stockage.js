@@ -9,6 +9,11 @@ import { veilleDe } from './defi.js';
 
 const CLE_SERIE = 'slitherlink.serie';
 const CLE_PARTIE = 'slitherlink.partie';
+const CLE_PASSEPORT = 'slitherlink.passeport';
+
+// Ouvert depuis le hub avec un passeport, le jeu range tout dans l'espace du
+// joueur ; en mode invite, dans localStorage, comme avant.
+const passeport = globalThis.Passeport?.stockageJeu('slitherlink') ?? null;
 
 // Un coffre en memoire : ni le navigateur prive ni Node ne nous laissent
 // ecrire, et une partie qu'on ne peut pas sauvegarder vaut mieux qu'une page
@@ -23,6 +28,7 @@ function coffreEnMemoire() {
 }
 
 function coffreParDefaut() {
+    if (passeport) return passeport;
     try {
         const stockage = globalThis.localStorage;
         if (!stockage) return coffreEnMemoire();
@@ -99,8 +105,22 @@ function oublierPartie(coffre = coffreParDefaut()) {
     try { coffre.removeItem(CLE_PARTIE); } catch { /* rien a oublier */ }
 }
 
+// --- Le passeport ----------------------------------------------------------
+
+// Le tampon Logique recompense une boucle fermee, ou l'effort : trente traits
+// poses dans la journee, sur une ou plusieurs grilles. Ajoute `traits` au
+// compte du jour et renvoie le total ; null en mode invite, ou rien ne compte.
+function ajouterTraitsPasseport(traits, jour, coffre = passeport) {
+    if (!coffre) return null;
+    const compte = lireJSON(coffre, CLE_PASSEPORT);
+    const avant = compte && compte.jour === jour && Number.isInteger(compte.traits) ? compte.traits : 0;
+    const total = avant + Math.max(0, traits | 0);
+    if (total !== avant || !compte || compte.jour !== jour) ecrireJSON(coffre, CLE_PASSEPORT, { jour, traits: total });
+    return total;
+}
+
 export {
     chargerSerie, serieApres, enregistrerReussite,
-    enregistrerPartie, chargerPartie, oublierPartie,
+    enregistrerPartie, chargerPartie, oublierPartie, ajouterTraitsPasseport,
     coffreEnMemoire, coffreParDefaut, SERIE_VIDE, CLE_SERIE, CLE_PARTIE
 };

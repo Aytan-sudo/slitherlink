@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Slitherlink — une seule boucle</title>
 <meta name="description" content="Slitherlink : reliez les points en une seule boucle fermée. Grilles garanties à solution unique, difficulté mesurée, jouable au doigt et hors ligne.">
 <meta name="theme-color" content="#16233F">
@@ -10,8 +10,13 @@
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/icon-180.png">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="commun/passeport.css">
+<script src="commun/passeport.js"></script>
+<script src="commun/liaison.js" defer></script>
 </head>
 <body>
+
+<div class="passeport-ruban" data-passeport-ruban data-jeu="slitherlink" data-consigne="Tampon : une boucle fermée ou 30 traits"></div>
 
 <header class="entete">
     <h1>Slitherlink</h1>

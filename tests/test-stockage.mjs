@@ -1,6 +1,6 @@
 import {
     chargerSerie, serieApres, enregistrerReussite,
-    enregistrerPartie, chargerPartie, oublierPartie,
+    enregistrerPartie, chargerPartie, oublierPartie, ajouterTraitsPasseport,
     coffreEnMemoire, SERIE_VIDE, CLE_SERIE
 } from '../js/stockage.js';
 import { counter } from './harness.mjs';
@@ -99,6 +99,19 @@ check('sans rien d enregistre, la serie est vide',
     // L'etat sans la grille s'appliquerait a n'importe quoi : on refuse.
     enregistrerPartie({ etat: 'AAAA' }, coffre);
     check('un etat sans sa grille est rejete', chargerPartie(coffre) === null);
+}
+
+// Le compteur de traits du tampon Logique : cumule sur la journee, remis a zero
+// le lendemain, et muet en mode invite, ou il n'y a pas de passeport.
+{
+    const coffre = coffreEnMemoire();
+    check('en mode invite, rien n est compte', ajouterTraitsPasseport(5, '2026-09-15') === null);
+    ajouterTraitsPasseport(12, '2026-09-15', coffre);
+    check('les traits de plusieurs grilles s additionnent', ajouterTraitsPasseport(18, '2026-09-15', coffre) === 30);
+    check('confier zero trait ne change rien', ajouterTraitsPasseport(0, '2026-09-15', coffre) === 30);
+    check('le lendemain, le compte repart', ajouterTraitsPasseport(4, '2026-09-16', coffre) === 4);
+    coffre.setItem('slitherlink.passeport', '{casse');
+    check('un compteur illisible repart proprement', ajouterTraitsPasseport(2, '2026-09-16', coffre) === 2);
 }
 
 report();
