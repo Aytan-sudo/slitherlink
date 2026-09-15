@@ -7,6 +7,11 @@ Chaque grille n'a qu'une solution, et c'est garanti par construction — pas par
 espoir. HTML, CSS et JavaScript natifs, modules ES chargés directement par le
 navigateur. Aucune dépendance, aucune compilation, aucun bundler.
 
+## Version 1.1.2 — Passeport 1.6.0
+
+Module commun du passeport 1.6.0 : Polyominos et Mosaïcomino rejoignent le thème
+Logique. Rien ne change dans le jeu.
+
 ## Version 1.1.1 — Passeport 1.5.0
 
 Module commun du passeport 1.5.0 : L’Architecte et Solitaire rejoignent le thème
