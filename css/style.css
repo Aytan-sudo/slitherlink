@@ -148,6 +148,15 @@ main {
     max-width: min(34rem, 92vh);
 }
 
+/* Ecran court — l'iPhone SE laisse 549 px dans Safari d'iOS 26. Le plateau y
+   prenait toute la largeur et poussait Annuler, Refaire et le lien de partage
+   sous la barre du navigateur : il fallait defiler pour annuler un trait. Le
+   plateau se plafonne donc a la hauteur restante, la rangee d'actions reste a
+   l'ecran, et seuls les reglages demandent encore un defilement. */
+@media (orientation: portrait) and (max-height: 640px) {
+    .plateau { max-width: min(34rem, 92vh, calc(100dvh - 268px)); }
+}
+
 #grille {
     display: block;
     width: 100%;
