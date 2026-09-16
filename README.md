@@ -7,6 +7,19 @@ Chaque grille n'a qu'une solution, et c'est garanti par construction — pas par
 espoir. HTML, CSS et JavaScript natifs, modules ES chargés directement par le
 navigateur. Aucune dépendance, aucune compilation, aucun bundler.
 
+## Version 1.1.3
+
+Annuler et Refaire restent à l'écran sur un petit téléphone. Safari d'iOS 26 ne
+laisse que 549 px de haut sur un iPhone SE : le plateau y prenait toute la
+largeur et poussait la rangée Annuler / Refaire / lien sous la barre du
+navigateur — il fallait défiler pour annuler un trait, au milieu d'une partie.
+Sous 640 px de hauteur, en portrait, le plateau se plafonne à la hauteur qui
+reste. Les réglages (taille, difficulté, nouvelle grille) demandent encore un
+défilement, ce qui est leur place.
+
+Trouvé dans le simulateur iOS de Xcode : les profils de Playwright annoncent
+667 px pour ce téléphone, sans compter la barre de Safari.
+
 ## Version 1.1.2 — Passeport 1.6.0
 
 Module commun du passeport 1.6.0 : Polyominos et Mosaïcomino rejoignent le thème
