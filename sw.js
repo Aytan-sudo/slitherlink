@@ -6,7 +6,7 @@
 // piege : un `git push` resterait invisible pour tous ceux qui ont deja ouvert
 // le jeu, jusqu'a ce qu'on pense a changer VERSION a la main.
 
-const VERSION = 'slitherlink-v6';
+const VERSION = 'slitherlink-v7';
 const COQUILLE = [
     './',
     'index.html',
