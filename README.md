@@ -7,6 +7,12 @@ Chaque grille n'a qu'une solution, et c'est garanti par construction — pas par
 espoir. HTML, CSS et JavaScript natifs, modules ES chargés directement par le
 navigateur. Aucune dépendance, aucune compilation, aucun bundler.
 
+## Version 1.1.5 — Passeport 1.8.0
+
+Module commun du passeport 1.8.0 : **Maze for Adventurers** rejoint le thème
+Aventure, aux côtés de Snake. Toute la collection est désormais raccordée. Rien
+ne change dans le jeu.
+
 ## Version 1.1.4 — Passeport 1.7.0
 
 Module commun du passeport 1.7.0 : 2048 rejoint le thème Nombres, Snake ouvre le

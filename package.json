@@ -1,6 +1,6 @@
 {
     "name": "slitherlink",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "private": true,
     "description": "Slitherlink statique : une seule boucle fermee, grilles a solution unique, jouable hors ligne.",
     "type": "module",
