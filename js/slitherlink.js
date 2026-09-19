@@ -10,7 +10,7 @@ const TRAIT = B.TRAIT, CROIX = B.CROIX, INCONNU = B.INCONNU;
 
 // Un motif faux ne se voit pas a l'oeil nu : il fabrique en silence des
 // grilles insolubles. Chacun de ceux-ci a ete confronte seul a
-// l'enumeration exhaustive (tests/cas.js).
+// l'enumeration exhaustive (tests/reference.mjs).
 //
 // Motif ecarte : "l'arete partagee entre deux 3 est tracee". Elle a l'air
 // evidente et elle est fausse. Contre-exemple minimal, une grille 2x2 de

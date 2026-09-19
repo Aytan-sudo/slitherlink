@@ -136,4 +136,66 @@ for (const cas of CONNUES) {
     }
 }
 
+// ------------------------------------------------- le budget d hypotheses
+
+// Un budget epuise est la situation dangereuse du solveur : il arrive en
+// plein milieu d'une refutation, la ou un `false` rendu au mauvais endroit
+// ferait conclure a une contradiction et poser l'arete opposee. Ce qu'on
+// exige ici : quand la deduction s'arrete faute de budget, elle ne rend
+// rien ; et quand elle aboutit, quel que soit le budget, c'est sur la vraie
+// solution et sur elle seule.
+{
+    const contour = contourDeRegion([
+        '.###.', '##.##', '.###.', '##.##', '.###.'
+    ]);
+    const complets = Array.from(chiffresDepuisEtat(contour.graphe, contour.etat));
+
+    // Une grille assez creusee pour qu'il faille des hypotheses.
+    const alea = creerHasard(4242);
+    let chiffres = null, sansBudget = null;
+    for (let essai = 0; essai < 200 && !chiffres; essai++) {
+        const candidat = complets.slice();
+        for (let f = 0; f < candidat.length; f++) if (alea() < 0.55) candidat[f] = -1;
+        const c = creerContraintes(5, 5, candidat);
+        const libre = B.deduire(c, 3, -1);
+        if (libre.etat && libre.essais >= 2 && !B.resoudreParDeduction(c, 2)) {
+            chiffres = candidat; sansBudget = libre;
+        }
+    }
+    check('une grille a hypotheses a bien ete trouvee pour l essai', chiffres !== null);
+
+    if (chiffres) {
+        // Effacer des chiffres au hasard peut rendre unique une AUTRE boucle
+        // que celle de depart : la reference est donc la solution de cette
+        // grille-ci, confirmee par l'enumeration.
+        const contraintes = creerContraintes(5, 5, chiffres);
+        const capture = {};
+        const solutions = B.compterSolutions(contraintes, 2, capture);
+        const vraie = capture.etat;
+        check('sans budget, la deduction aboutit sur la seule solution',
+            solutions === 1 && memeEtat(sansBudget.etat, vraie), sansBudget.essais + ' hypotheses');
+
+        const court = B.deduire(contraintes, 3, sansBudget.essais - 1);
+        check('un budget trop court ne rend aucun etat', court.etat === null);
+        check('et il le dit', court.budgetDepasse === true);
+
+        // Le point qui compte : aucun budget intermediaire ne doit faire
+        // sortir une solution differente de la vraie.
+        let fausses = 0;
+        for (let budget = 0; budget <= sansBudget.essais + 2; budget++) {
+            const bilan = B.deduire(contraintes, 3, budget);
+            if (bilan.etat && !memeEtat(bilan.etat, vraie)) fausses++;
+        }
+        check('aucun budget ne fabrique une autre solution', fausses === 0, fausses);
+
+        // Et la mesure suit : sous budget, la grille monte d'un cran.
+        const large = B.analyser(contraintes, { solutions: 1, essaisMax: 99 });
+        const serre = B.analyser(contraintes, { solutions: 1, essaisMax: sansBudget.essais - 1 });
+        check('une grille trop couteuse pour son budget est classee plus haut',
+            large.niveau === 3 && serre.niveau > 3, `${large.niveau} puis ${serre.niveau}`);
+        check('et le bilan dit combien d hypotheses il a fallu',
+            large.essais === sansBudget.essais, `${large.essais} vs ${sansBudget.essais}`);
+    }
+}
+
 report();

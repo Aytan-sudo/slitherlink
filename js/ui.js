@@ -2,6 +2,8 @@
 // evite que chaque module aille pecher dans le DOM de son cote, et donne un
 // seul endroit a corriger quand une balise change de nom.
 
+import { detailDeGrille } from './difficulte.js';
+
 const attraper = (id) => document.getElementById(id);
 
 const elements = {
@@ -39,7 +41,7 @@ function formaterDuree(ms) {
 // Le bandeau au-dessus de la grille : ce qu'on joue, et depuis combien de temps.
 function afficherGrille(grille) {
     elements.niveau.textContent = grille.difficulte.nom;
-    elements.niveauDetail.textContent = grille.difficulte.detail;
+    elements.niveauDetail.textContent = detailDeGrille(grille);
     elements.taille.textContent = grille.L + '×' + grille.H;
     elements.chiffres.textContent = grille.nbChiffres + ' chiffres';
 }

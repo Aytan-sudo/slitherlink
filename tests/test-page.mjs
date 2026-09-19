@@ -9,6 +9,17 @@ const existe = (nom) => existsSync(new URL('../' + nom, import.meta.url));
 
 const html = lire('index.html');
 const sw = lire('sw.js');
+
+// Le numero vit a trois endroits, et un ecart se paie cher : un cache qui
+// garde son nom ne se renouvelle pas, et le joueur reste sur l'ancien jeu
+// sans qu'aucun signe ne le dise.
+const version = JSON.parse(lire('package.json')).version;
+check('le paquet et l interface portent la meme version',
+    html.includes(`Slitherlink ${version}`), version);
+check('et le cache du service worker aussi',
+    sw.includes(`const VERSION = 'slitherlink-${version}'`), version);
+check('la purge des vieux caches ne vise que ce jeu',
+    sw.includes("cle.startsWith('slitherlink-')"));
 const modules = readdirSync(new URL('../js', import.meta.url)).filter((f) => f.endsWith('.js')).sort();
 
 // index.html n'appelle qu'un module et ne contient aucune logique. Seuls s'y

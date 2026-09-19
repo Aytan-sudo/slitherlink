@@ -7,6 +7,38 @@ Chaque grille n'a qu'une solution, et c'est garanti par construction — pas par
 espoir. HTML, CSS et JavaScript natifs, modules ES chargés directement par le
 navigateur. Aucune dépendance, aucune compilation, aucun bundler.
 
+## Version 1.2.0 — Le tap ne barre plus, la difficulté a un budget
+
+Deux gênes à l'usage, corrigées ensemble.
+
+**Le tap faisait trait, puis croix, puis rien.** On tapait pour effacer un
+trait et on héritait d'une croix, qu'il fallait un troisième tap pour chasser ;
+un glissé qui efface en semait derrière lui. Le tap fait désormais
+l'aller-retour entre le fil et le vide, et rien d'autre. La croix reste au
+clavier, touche **X**, où la poser est un choix et non le milieu du chemin.
+
+**Et la difficulté ne voulait pas dire la même chose d'une taille à l'autre.**
+Le niveau nomme la technique la plus avancée qu'il faut employer — mais pas
+combien de fois il faut l'employer. Le générateur effaçant tant qu'il peut,
+« Essai court » demandait quatre hypothèses en 5×5 et trente-sept en 12×12 : la
+même étiquette pour deux jeux sans rapport. Chaque grille a maintenant un
+**budget d'hypothèses**, autant que la grille a de lignes, et l'effacement
+s'arrête avant de le dépasser.
+
+| hypothèses en « Essai court » | 5×5 | 7×7 | 8×8 | 10×10 | 12×12 |
+|---|---|---|---|---|---|
+| avant | 4 | 11 | 18 | 25 | 37 |
+| après | 4 | 6 | 8 | 10 | 12 |
+
+Le budget entre aussi dans la mesure : une grille qui demande plus d'hypothèses
+simples que la grille n'a de lignes n'est plus un « Essai court » qui traîne en
+longueur, c'est le cran au-dessus. Le bandeau dit désormais combien d'hypothèses
+la grille en cours demande. En prime, le générateur s'arrête plus tôt : une
+grille « Essai double » en 12×12 se coud en 140 ms au lieu de deux secondes.
+
+Le numéro de version apparaît au bas des règles, et le cache du service worker
+le porte : `slitherlink-1.2.0`.
+
 ## Version 1.1.6 — Passeport 1.9.0
 
 Module commun du passeport 1.9.0 : deux jeux neufs rejoignent la collection,
@@ -78,9 +110,10 @@ depuis `file://` pour cause d'origine opaque, et un double-clic sur `index.html`
 ne donne qu'une page blanche. `serve.mjs` est un serveur statique de soixante
 lignes, sans aucune dépendance.
 
-- **Tap ou clic** sur une arête : trait, puis croix, puis rien.
-- **Glisser** : trace toute une suite d'arêtes d'un coup. C'est le geste qui
-  compte sur téléphone.
+- **Tap ou clic** sur une arête : elle se trace ; le même tap l'efface.
+- **Glisser** : trace toute une suite d'arêtes d'un coup, et les efface toutes
+  si le geste part d'une arête déjà tracée. C'est le geste qui compte sur
+  téléphone.
 - **Flèches** pour se déplacer, **Espace** pour tracer, **X** pour barrer.
 - **Ctrl+Z** annule, **Ctrl+Maj+Z** refait, sans limite. Un glissé compte pour
   un seul geste.
@@ -99,7 +132,9 @@ c'est délibéré : la grille vous dit déjà tout ce qu'il faut savoir — un c
 satisfait s'estompe, un chiffre dépassé passe au rouge à l'instant même.
 
 La croix ne sert à rien pour le jeu. Elle sert à vous : c'est le repère au
-crayon qui dit « pas ici », pour ne pas y revenir.
+crayon qui dit « pas ici », pour ne pas y revenir. Elle se pose au clavier,
+touche **X** — pas au doigt : dans un cycle de tap, on l'attrape toujours quand
+on voulait effacer.
 
 ## Les difficultés
 
@@ -119,6 +154,20 @@ Ce classement est aussi le **critère de fabrication**. On efface un chiffre, et
 on le garde effacé tant que la grille reste résoluble *par déduction* à la force
 visée. Demander le niveau 1 donne donc une grille réellement faisable de tête ;
 demander le niveau 4 donne une grille où il faudra parier.
+
+### Le budget d'hypothèses
+
+La technique ne dit pas tout. Une grille qui demande trois hypothèses et une
+grille qui en demande trente-sept emploient la même, et ne sont pas le même
+jeu : effacer tant qu'on peut, c'est effacer jusqu'à ce qu'il ne reste presque
+plus de déduction. Chaque grille reçoit donc un **budget**, autant
+d'hypothèses qu'elle a de lignes — cinq en 5×5, douze en 12×12. Le générateur
+s'arrête avant de le dépasser, et le classement s'en sert : au-delà du budget,
+ce n'est plus le même niveau.
+
+C'est ce qui rend « Essai court » comparable d'une taille à l'autre. Une grande
+grille reste une plus longue partie ; elle n'est plus, en plus, une partie plus
+coriace à chaque coup.
 
 ## Le dessin
 
@@ -253,9 +302,10 @@ casser le hors-ligne sans que rien ne le signale.
 - **Les croix ne se déduisent pas toutes seules.** Quand un chiffre est
   satisfait, ses arêtes restantes ne se barrent pas automatiquement. C'est le
   travail du joueur.
-- **Le niveau « Essai double » est lent à fabriquer** : environ deux secondes en
-  12×12, contre vingt-cinq millisecondes pour « Essai court ». Un voile prévient
-  pendant la couture.
+- **Le niveau « Essai double » reste le plus lent à fabriquer** : environ
+  140 ms en 12×12, contre une dizaine pour « Essai court ». Un voile prévient
+  pendant la couture — il ne se voit plus guère depuis que le budget
+  d'hypothèses arrête l'effacement plus tôt.
 - **Au-delà du 7×7, un écran de 390 px descend sous les 44 px par case.** Le jeu
   ouvre donc sur du 7×7 sur écran étroit (45 px par case) et du 10×10 au-delà.
   Les grandes grilles restent jouables au doigt, mais moins confortablement.

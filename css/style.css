@@ -392,6 +392,10 @@ main {
 .aide li { margin-bottom: 0.4rem; }
 .aide-note { color: var(--craie); font-style: italic; }
 .aide .bouton { margin-top: 1.5rem; width: 100%; }
+/* La version telle que l'appareil l'a chargee : si le service worker sert
+   encore un vieux cache, c'est le vieux numero qui s'affiche ici. */
+.aide-version { margin: 0.9rem 0 0; text-align: center; font-size: 0.75rem;
+    letter-spacing: 0.12em; color: var(--craie); opacity: 0.7; }
 
 .annonce {
     position: absolute;

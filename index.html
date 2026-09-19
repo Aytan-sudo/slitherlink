@@ -107,15 +107,18 @@
        Les cases vides ne disent rien. Chaque grille n'a qu'une solution.</p>
     <h3>Les gestes</h3>
     <ul>
-        <li><strong>Tap ou clic</strong> sur une arête : trait, puis croix, puis rien.</li>
-        <li><strong>Glisser</strong> : trace toute une suite d'arêtes d'un coup.</li>
+        <li><strong>Tap ou clic</strong> sur une arête : elle se trace ; le même tap l'efface.</li>
+        <li><strong>Glisser</strong> : trace toute une suite d'arêtes d'un coup. En partant
+            d'une arête déjà tracée, le même geste les efface.</li>
         <li><strong>Flèches</strong> pour se déplacer, <strong>Espace</strong> pour tracer,
             <strong>X</strong> pour barrer.</li>
         <li><strong>Ctrl+Z</strong> annule, <strong>Ctrl+Maj+Z</strong> refait.</li>
     </ul>
-    <p class="aide-note">La croix ne sert à rien pour le jeu : elle sert à vous.
-       C'est le repère au crayon qui dit « pas ici », pour ne pas y revenir.</p>
+    <p class="aide-note">La croix (touche <strong>X</strong>) ne sert à rien pour le jeu :
+       elle sert à vous. C'est le repère au crayon qui dit « pas ici », pour ne pas y
+       revenir. Elle n'est pas au doigt : on tape pour tracer et pour effacer, rien d'autre.</p>
     <button type="button" class="bouton" id="bouton-fermer-aide">Fermer</button>
+    <p class="aide-version">Slitherlink 1.2.0</p>
 </dialog>
 
 <p class="annonce" id="annonce" role="status" aria-live="polite"></p>

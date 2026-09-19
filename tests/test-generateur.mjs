@@ -71,20 +71,54 @@ console.log('\nGenerateur\n');
 // Un niveau qui ne changerait rien a la grille produite ne serait qu'une
 // etiquette collee apres coup.
 {
-    const chiffresMoyens = {};
+    const chiffresMoyens = {}, essaisMoyens = {};
     for (let niveau = 1; niveau <= 4; niveau++) {
-        let total = 0, n = 0;
+        let total = 0, essais = 0, n = 0;
         for (let i = 0; i < 6; i++) {
             const grille = genererSur(8, 8, creerHasard(81000 + i), { niveau });
-            if (grille) { total += grille.nbChiffres; n++; }
+            if (grille) { total += grille.nbChiffres; essais += grille.essais; n++; }
         }
         chiffresMoyens[niveau] = n ? total / n : 0;
+        essaisMoyens[niveau] = n ? essais / n : 0;
     }
     check('plus le niveau monte, moins il reste de chiffres',
-        chiffresMoyens[1] >= chiffresMoyens[3] && chiffresMoyens[3] >= chiffresMoyens[4],
-        JSON.stringify(chiffresMoyens));
+        chiffresMoyens[1] >= chiffresMoyens[3], JSON.stringify(chiffresMoyens));
     check('un niveau 1 laisse nettement plus de chiffres qu un niveau 4',
         chiffresMoyens[1] - chiffresMoyens[4] >= 2, JSON.stringify(chiffresMoyens));
+
+    // Le nombre de chiffres ne separe plus les niveaux 3 et 4 : le budget
+    // arrete l'effacement des deux cotes, et c'est la technique demandee qui
+    // les distingue. Ce qui doit tenir, c'est la frontiere des hypotheses.
+    check('les deux premiers niveaux ne demandent aucune hypothese',
+        essaisMoyens[1] === 0 && essaisMoyens[2] === 0, JSON.stringify(essaisMoyens));
+    check('les deux suivants en demandent toujours au moins une',
+        essaisMoyens[3] >= 1 && essaisMoyens[4] >= 1, JSON.stringify(essaisMoyens));
+}
+
+// --------------------------------------------------------- le budget tient
+
+// La raison d'etre du budget : « Essai court » doit vouloir dire la meme
+// chose en 5x5 et en 12x12. Sans lui, la meme etiquette demandait quatre
+// hypotheses sur la petite grille et trente-sept sur la grande.
+{
+    let debordements = 0, sousNiveau = 0, detail = '';
+    for (const taille of [5, 7, 10, 12]) {
+        const budget = B.budgetEssais({ L: taille, H: taille });
+        for (let i = 0; i < 3; i++) {
+            const grille = genererSur(taille, taille, creerHasard(83000 + i * 7 + taille), { niveau: 3 });
+            if (!grille) continue;
+            if (grille.essais > budget) {
+                debordements++;
+                if (!detail) detail = `${taille}x${taille} : ${grille.essais} hypotheses pour un budget de ${budget}`;
+            }
+            if (grille.niveau !== 3) { sousNiveau++; if (!detail) detail = `${taille}x${taille} classee ${grille.niveau}`; }
+        }
+    }
+    check('aucune grille ne depasse le budget d hypotheses de sa taille', debordements === 0, detail);
+    check('et aucune ne retombe sous le niveau demande', sousNiveau === 0, detail);
+
+    check('le budget suit la taille de la grille',
+        B.budgetEssais({ L: 5, H: 5 }) === 5 && B.budgetEssais({ L: 12, H: 12 }) === 12);
 }
 
 report();

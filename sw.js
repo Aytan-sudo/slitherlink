@@ -6,7 +6,7 @@
 // piege : un `git push` resterait invisible pour tous ceux qui ont deja ouvert
 // le jeu, jusqu'a ce qu'on pense a changer VERSION a la main.
 
-const VERSION = 'slitherlink-v9';
+const VERSION = 'slitherlink-1.2.0';
 const COQUILLE = [
     './',
     'index.html',
@@ -45,7 +45,7 @@ self.addEventListener('install', (evenement) => {
 self.addEventListener('activate', (evenement) => {
     evenement.waitUntil(
         caches.keys()
-            .then((cles) => Promise.all(cles.filter((cle) => cle.startsWith('slitherlink-v') && cle !== VERSION).map((cle) => caches.delete(cle))))
+            .then((cles) => Promise.all(cles.filter((cle) => cle.startsWith('slitherlink-') && cle !== VERSION).map((cle) => caches.delete(cle))))
             .then(() => self.clients.claim())
     );
 });

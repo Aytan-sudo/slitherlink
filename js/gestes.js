@@ -4,9 +4,15 @@
 
 import * as B from './boucle.js';
 
+// Le tap fait l'aller-retour entre le fil et le vide, et rien d'autre. La
+// croix y a longtemps tenu la troisieme place ; elle n'a pas survecu a
+// l'usage. On tape pour effacer un trait et on herite d'une croix, puis il
+// faut un tap de plus pour revenir au vide - et le glisse qui efface une
+// suite d'aretes la semait derriere lui. Elle reste au clavier, ou la poser
+// est un choix (touche X) et non le milieu du chemin.
 const SUIVANT = {};
 SUIVANT[B.INCONNU] = B.TRAIT;
-SUIVANT[B.TRAIT] = B.CROIX;
+SUIVANT[B.TRAIT] = B.INCONNU;
 SUIVANT[B.CROIX] = B.INCONNU;
 
 function brancher(svg, vue, jeu) {

@@ -338,6 +338,7 @@ function ouvrirDepuisLien(lu) {
         chiffres: lu.grille.chiffres,
         nbChiffres: lu.grille.chiffres.filter((n) => n >= 0).length,
         niveau: bilan.niveau,
+        essais: bilan.essais,
         difficulte: decrireNiveau(bilan.niveau)
     }, { etat: lu.etat });
     return true;

@@ -52,7 +52,12 @@ function creerRecherche(contraintes, options) {
 
         options: { connexite: options && options.connexite === false ? false : true },
         noeuds: 0,
-        profondeurMax: 0
+        profondeurMax: 0,
+
+        // Le budget d'hypotheses, et ce qu'il en reste. -1 : illimite.
+        essais: 0,
+        essaisMax: options && options.essaisMax !== undefined ? options.essaisMax : -1,
+        budgetDepasse: false
     };
     for (let p = 0; p < P; p++) {
         r.parent[p] = p;
@@ -286,6 +291,18 @@ function estResolu(r) {
         && r.contraintes.estSatisfait(r.etat);
 }
 
+// --- Le budget d'hypotheses --------------------------------------------
+
+// Une hypothese coute au joueur le meme effort quelle que soit la taille de
+// la grille : la supposer, la propager de tete, constater la contradiction.
+// Sans plafond, le generateur efface tant qu'il peut et le meme niveau
+// annonce demande quatre hypotheses en 5x5 et trente-sept en 12x12 - « Essai
+// court » ne veut alors plus rien dire. On en accorde autant que la grille a
+// de lignes : c'est ce qui rend un niveau comparable d'une taille a l'autre.
+function budgetEssais(graphe) {
+    return Math.round((graphe.L + graphe.H) / 2);
+}
+
 // --- Choix de l'arete de branchement -----------------------------------
 
 // Prolonger un fil deja commence fait tomber les deductions en cascade ;
@@ -385,7 +402,7 @@ function meriteUnEssai(r, e) {
     return false;
 }
 
-function resoudreParEssais(r, profondeur) {
+function resoudreParEssais(r, profondeur, sommet) {
     let progres = true;
     while (progres) {
         progres = false;
@@ -396,9 +413,23 @@ function resoudreParEssais(r, profondeur) {
             for (let i = 0; i < 2; i++) {
                 const marque = marquer(r);
                 let tenable = poser(r, e, valeurs[i]) && propager(r);
-                if (tenable && profondeur > 1) tenable = resoudreParEssais(r, profondeur - 1);
+                if (tenable && profondeur > 1) tenable = resoudreParEssais(r, profondeur - 1, false);
                 defaire(r, marque);
                 if (!tenable) {
+                    // Le budget ne se compte qu'au sommet : une hypothese
+                    // imbriquee appartient a celle qui la porte. Et surtout
+                    // il s'arrete en rendant `true`, jamais `false` - rendre
+                    // false ici ferait croire a une contradiction, et
+                    // l'appelant poserait l'arete opposee, qui n'a aucune
+                    // raison d'etre juste. Un budget epuise ne doit rien
+                    // deduire du tout.
+                    if (sommet !== false) {
+                        if (r.essaisMax >= 0 && r.essais >= r.essaisMax) {
+                            r.budgetDepasse = true;
+                            return true;
+                        }
+                        r.essais++;
+                    }
                     const oppose = valeurs[i] === TRAIT ? CROIX : TRAIT;
                     if (!poser(r, e, oppose) || !propager(r)) return false;
                     progres = true;
@@ -410,52 +441,73 @@ function resoudreParEssais(r, profondeur) {
     return true;
 }
 
-// Resolution par deduction pure, a une force donnee. Aucune enumeration :
-// chaque arete posee l'a ete parce qu'elle etait forcee. D'ou la propriete
-// qui fait tout l'interet de cette fonction pour le generateur : si elle
-// resout la grille, la solution est unique, et il n'y a rien a prouver.
+// Resolution par deduction pure, a une force donnee et dans un budget
+// d'hypotheses. Aucune enumeration : chaque arete posee l'a ete parce
+// qu'elle etait forcee. D'ou la propriete qui fait tout l'interet de cette
+// fonction pour le generateur : si elle resout la grille, la solution est
+// unique, et il n'y a rien a prouver.
 //   niveau 1 : chiffres et degres      niveau 3 : + hypotheses simples
 //   niveau 2 : + connexite             niveau 4 : + hypotheses imbriquees
-function resoudreParDeduction(contraintes, niveau) {
-    const r = creerRecherche(contraintes, { connexite: niveau >= 2 });
+// Rend l'etat resolu et le nombre d'hypotheses qu'il a fallu ; l'etat vaut
+// null si la deduction n'aboutit pas dans ce budget. essaisMax vaut -1 pour
+// ne pas en avoir.
+function deduire(contraintes, niveau, essaisMax) {
+    const r = creerRecherche(contraintes, {
+        connexite: niveau >= 2,
+        essaisMax: essaisMax === undefined ? -1 : essaisMax
+    });
     let ok = !contraintes.pretraitement || contraintes.pretraitement(r);
     if (ok) ok = propager(r);
-    if (ok && niveau >= 3) ok = resoudreParEssais(r, niveau - 2);
-    return (ok && estResolu(r)) ? r.etat : null;
+    if (ok && niveau >= 3) ok = resoudreParEssais(r, niveau - 2, true);
+    const abouti = ok && !r.budgetDepasse && estResolu(r);
+    return { etat: abouti ? r.etat : null, essais: r.essais, budgetDepasse: r.budgetDepasse };
+}
+
+function resoudreParDeduction(contraintes, niveau, essaisMax) {
+    return deduire(contraintes, niveau, essaisMax).etat;
 }
 
 // Difficulte reelle : la technique la plus avancee qu'il a fallu employer.
 // On rejoue la resolution en n'autorisant qu'une strate a la fois, et on
 // s'arrete a la premiere qui suffit.
+// Le budget d'hypotheses fait partie de la mesure : une grille qui demande
+// plus d'hypotheses simples que la grille n'a de lignes n'est pas un « Essai
+// court » qui traine en longueur, c'est un cran au-dessus. Sans ce plafond,
+// le niveau ne dirait rien du temps passe.
 // options.solutions : nombre de solutions deja connu, pour ne pas le
 // recompter. options.plafond : au-dela de ce niveau, inutile de chercher
 // plus fin - on rend plafond + 1 et on s'arrete. Les strates profondes
 // coutent cher, et l'appelant sait souvent qu'il n'en a pas besoin.
+// options.essaisMax : le budget, si l'appelant ne veut pas celui de la
+// taille de la grille.
 function analyser(contraintes, options) {
     options = options || {};
     const solutions = options.solutions !== undefined
         ? options.solutions : compterSolutions(contraintes, 2);
     if (solutions !== 1) {
-        return { solutions: solutions, niveau: 0, profondeur: 0, noeuds: 0 };
+        return { solutions: solutions, niveau: 0, essais: 0, profondeur: 0, noeuds: 0 };
     }
     const plafond = options.plafond || 4;
+    const essaisMax = options.essaisMax !== undefined
+        ? options.essaisMax : budgetEssais(contraintes.graphe);
     const strates = [
-        { niveau: 1, connexite: false, essais: 0 },
-        { niveau: 2, connexite: true, essais: 0 },
-        { niveau: 3, connexite: true, essais: 1 },
-        { niveau: 4, connexite: true, essais: 2 }
+        { niveau: 1, profondeur: 0 },
+        { niveau: 2, profondeur: 0 },
+        { niveau: 3, profondeur: 1 },
+        { niveau: 4, profondeur: 2 }
     ];
     for (let i = 0; i < strates.length; i++) {
         const s = strates[i];
-        if (s.niveau > plafond) return { solutions: 1, niveau: plafond + 1, profondeur: 0, noeuds: 0 };
-        if (resoudreParDeduction(contraintes, s.niveau)) {
-            return { solutions: 1, niveau: s.niveau, profondeur: s.essais, noeuds: 0 };
+        if (s.niveau > plafond) return { solutions: 1, niveau: plafond + 1, essais: 0, profondeur: 0, noeuds: 0 };
+        const bilan = deduire(contraintes, s.niveau, essaisMax);
+        if (bilan.etat) {
+            return { solutions: 1, niveau: s.niveau, essais: bilan.essais, profondeur: s.profondeur, noeuds: 0 };
         }
     }
-    if (plafond < 5) return { solutions: 1, niveau: 5, profondeur: 0, noeuds: 0 };
+    if (plafond < 5) return { solutions: 1, niveau: 5, essais: 0, profondeur: 0, noeuds: 0 };
     const capture = {};
     compterSolutions(contraintes, 2, capture);
-    return { solutions: 1, niveau: 5, profondeur: capture.profondeur, noeuds: capture.noeuds };
+    return { solutions: 1, niveau: 5, essais: 0, profondeur: capture.profondeur, noeuds: capture.noeuds };
 }
 
-export { INCONNU, TRAIT, CROIX, creerRecherche, poser, propager, marquer, defaire, trouver, estResolu, compterSolutions, resoudre, resoudreParEssais, resoudreParDeduction, analyser };
+export { INCONNU, TRAIT, CROIX, creerRecherche, poser, propager, marquer, defaire, trouver, estResolu, compterSolutions, resoudre, resoudreParEssais, deduire, resoudreParDeduction, budgetEssais, analyser };
